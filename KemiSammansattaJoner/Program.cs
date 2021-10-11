@@ -35,7 +35,7 @@ namespace KemiSammansattaJoner
             förkortning[2] = "SO4^2-";
             förkortning[3] = "HSO4^1-";
             förkortning[4] = "H2SO4";
-            förkortning[5] = "CN^-";
+            förkortning[5] = "CN^1-";
             förkortning[6] = "PO4^3-";
             förkortning[7] = "HPO4^2-";
             förkortning[8] = "H2PO4^1-";
@@ -90,6 +90,7 @@ namespace KemiSammansattaJoner
                 Console.WriteLine("Poäng: " + poäng + " utav 21");
                 Console.WriteLine("Tryck på valfri knapp för att fortsätta");
                 Console.ReadKey();
+                Console.Clear();
                 slutval = Valmeny("Vad vill du göra nu?", "Förhör igen med nya inställningar ", "Förhör igen med samma inställningar ", "avsluta programmet ");
                 switch (slutval)
                 {
@@ -157,9 +158,11 @@ namespace KemiSammansattaJoner
         public static int Förstsist(int val1, string[] namn, string[] förkortningar, Random rng)
         {
             int poäng = 0;
+            int currentround = 1;
             for (int i = 0; i < 21; i++)
             {
-                poäng = Förhör(val1, namn, förkortningar, rng, poäng, i);
+                poäng = Förhör(val1, namn, förkortningar, rng, poäng, i, currentround);
+                currentround++;
             }
             return poäng;
         }
@@ -167,9 +170,11 @@ namespace KemiSammansattaJoner
         public static int Sistförst(int val1, string[] namn, string[] förkortningar, Random rng)
         {
             int poäng = 0;
+            int currentround = 1;
             for (int i = 20; i > -1; i--)
             {
-                poäng = Förhör(val1, namn, förkortningar, rng, poäng, i);
+                poäng = Förhör(val1, namn, förkortningar, rng, poäng, i, currentround);
+                currentround++;
             }
             return poäng;
         }
@@ -178,6 +183,7 @@ namespace KemiSammansattaJoner
         {
             int poäng = 0;
             int slumpadfråga = 0;
+            int currentround = 1;
             for (int i = 0; i < 21; i++)
             {
                 while (true)
@@ -185,8 +191,9 @@ namespace KemiSammansattaJoner
                     slumpadfråga = rng.Next(21);
                     if (gjord[slumpadfråga] == false)
                     {
-                        poäng = Förhör(val1, namn, förkortningar, rng, poäng, slumpadfråga);
+                        poäng = Förhör(val1, namn, förkortningar, rng, poäng, slumpadfråga, currentround);
                         gjord[slumpadfråga] = true;
+                        currentround++;
                         break;
                     }
                 }
@@ -197,22 +204,54 @@ namespace KemiSammansattaJoner
             }
             return poäng;
         }
-        public static int Förhör(int val1, string[] namn, string[] förkortningar, Random rng, int poäng, int i)
+        public static int Förhör(int val1, string[] namn, string[] förkortningar, Random rng, int poäng, int i, int currentround)
         {
             string fråga1 = "Skriv förkortningen för ";
             string fråga2 = "Skriv namnet för ";
-            string input;
+            string input = "";
             bool random = false;
+            bool loop = true;
+            int ledtrådar = 0;
+            char[] namnarr = namn[i].ToCharArray();
+            char[] förkortningarr = förkortningar[i].ToCharArray();
             if (val1 == 2)
             { random = true; }
             if (random == true)
             { val1 = rng.Next(2); }
             if (val1 == 0)
             {
-                Console.WriteLine(fråga1 + namn[i]);
-                Console.Write("Ditt svar: ");
-                input = Console.ReadLine();
-                Console.Clear();
+                while (loop)
+                {
+                    Console.WriteLine("Nuvarande runda: " + currentround);
+                    Console.Write("Rätt svar: ");
+                    for (int x = 0; x < förkortningar[i].Length; x++)
+                    {
+                        if (ledtrådar > x)
+                        { Console.Write(förkortningarr[x]); }
+                        else
+                        { Console.Write("-"); }
+                    }
+                    Console.WriteLine();
+                    Console.WriteLine(fråga1 + namn[i]);
+                    Console.Write("Ditt svar: ");
+                    input = Console.ReadLine();
+                    Console.Clear();
+                    switch (input)
+                    {
+                        case "h":
+                        case "H":
+                            ledtrådar++;
+                            break;
+                        case "f":
+                        case "F":
+                            Facit(namn, förkortningar);
+                            break;
+                        default:
+                            loop = false;
+                            break;
+
+                    }
+                }
                 if (input == förkortningar[i])
                 { Console.WriteLine("Korrekt!"); poäng++; }
                 else
@@ -222,10 +261,37 @@ namespace KemiSammansattaJoner
             }
             else if (val1 == 1)
             {
-                Console.WriteLine(fråga2 + förkortningar[i]);
-                Console.Write("Ditt svar: ");
-                input = Console.ReadLine();
-                Console.Clear();
+                while (loop)
+                {
+                    Console.WriteLine("Nuvarande runda: " + currentround);
+                    Console.Write("Rätt svar: ");
+                    for (int x = 0; x < namn[i].Length; x++)
+                    {
+                        if (ledtrådar > x)
+                        { Console.Write(namnarr[x]); }
+                        else
+                        { Console.Write("-"); }
+                    }
+                    Console.WriteLine();
+                    Console.WriteLine(fråga1 + förkortningar[i]);
+                    Console.Write("Ditt svar: ");
+                    input = Console.ReadLine();
+                    Console.Clear();
+                    switch (input)
+                    {
+                        case "h":
+                        case "H":
+                            ledtrådar++;
+                            break;
+                        case "f":
+                        case "F":
+                            Facit(namn, förkortningar);
+                            break;
+                        default:
+                            loop = false;
+                            break;
+                    }
+                }
                 if (input == namn[i])
                 { Console.WriteLine("Korrekt!"); poäng++; }
                 else
@@ -237,6 +303,15 @@ namespace KemiSammansattaJoner
             Console.ReadKey();
             Console.Clear();
             return poäng;
+        }
+
+        public static void Facit(string[] namn, string[] förkortning)
+        {
+            for (int i = 0; i < 21; i++)
+            { Console.WriteLine(namn[i] + "   =   " + förkortning[i] + "\n"); }
+            Console.WriteLine("\nTryck på valfri knapp för att gå tillbaka till förhöret");
+            Console.ReadKey();
+            Console.Clear();
         }
     }
 }
